@@ -12,7 +12,6 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    /* background: linear-gradient(111deg, rgba(41,128,185,1) 0%, rgba(109,213,250,1) 35%, rgba(255,255,255,1) 100%); */
     padding: 20px; 
 }
 
@@ -22,25 +21,23 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 100;
-    display: none;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
     align-items: center;
     justify-content: center;
+    z-index: 999;
 }
-
 .message-container {
-    background-color: rgba(255, 255, 255, 0.8);
+    background: white;
     padding: 20px;
-    border-radius: 10px;
     text-align: center;
-    max-width: 80%;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 h1 {
     margin-top: 20px;
 }
-
-
 
 .board {
     display: grid;
@@ -54,35 +51,32 @@ h1 {
     align-content: center;
 }
 
-#game-board{
-
+#game-board {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); 
-
 }
 
-#info{
+#info {
     width: 700px;
     display: flex;
     justify-content: space-between;
 }
-.headline{
+
+.headline {
     width: 400px;
     display: flex;
     gap: 15px;
     align-items: center;
 }
 
-.icon{
+.icon {
     margin-bottom: 40px;
     height: 60px;
     margin-top: 40px;
-
 }
-
 
 .card {
     width: 100%;
-    height: 120px; /* Fixed height or you can make it responsive as well */
+    height: 120px;
     background-color: #e0e0e0;
     display: flex;
     justify-content: center;
@@ -94,15 +88,12 @@ h1 {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-
 .card img {
     width: 100%;
     height: 100%;
-    object-fit: cover; /* Ensures the image covers the card area without distorting the aspect ratio */
+    object-fit: cover;
     transition: opacity 0.5s ease-in-out;
-    
 }
-
 
 .card-cover {
     position: absolute;
@@ -110,14 +101,14 @@ h1 {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: #808080; /* Gray cover */
+    background-color: #808080;
     transition: opacity 0.5s ease;
     z-index: 10;
 }
 
 .card.flipped .card-cover {
     opacity: 0;
-    pointer-events: none; /* Allows clicking through the cover when it's invisible */
+    pointer-events: none;
 }
 
 .card.flipped img {
@@ -136,7 +127,7 @@ h1 {
     color: rgb(255, 0, 204);
 }
 
-.level-buttons{
+.level-buttons {
     width: 400px;
     display: flex;
     flex-wrap: nowrap;
@@ -165,7 +156,6 @@ h1 {
     margin-right: 10px;
 }
 
-
 #restart-btn:hover,
 #restart-hard-btn:hover,
 #restart-easy-btn:hover {
@@ -180,78 +170,116 @@ h1 {
     transform: translateY(2px);
 }
 
-
-.rank{
-    display: flex;
-    flex-direction: column;
-    font-size: 20px;
-    gap: 10px;
+.rank {
+    position: fixed;
+    top: 10%;
+    left: 50%;
+    transform: translate(-50%, 0);
+    background-color: white;
+    border: 2px solid black;
+    padding: 20px;
+    width: 80%;
+    max-height: 70%;
+    overflow-y: auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
 }
 
+.rank h2 {
+    text-align: center;
+}
 
-li{
+.rank li {
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.rank button {
+    margin-left: 10px;
+    padding: 5px 10px;
+    font-size: 14px;
+    background: #fcfcfd;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+}
+
+.rank button:hover {
+    background: #f0f0f0;
+    transform: translateY(-1px);
+}
+
+.rank button:active {
+    background: #e0e0e0;
+    transform: translateY(1px);
+}
+
+.rank button.close-rank {
+    margin-top: 15px;
+    align-self: center;
+    padding: 10px 20px;
+    font-size: 16px;
+    color: white;
+    background: rgb(41, 128, 185);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.rank button.close-rank:hover {
+    background: rgb(35, 115, 160);
+}
+
+li {
     list-style-type: none;
 }
 
-
-
-
-
 /* Responsive adjustments */
 @media (max-width: 700px) {
-
-    
     .board {
-        grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); /* Adjust the minmax for smaller screens */
+        grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
     }
 
     .card {
-        height: 90px; /* Smaller height on smaller screens */
+        height: 90px;
     }
 }
 
-    .headline {
-        gap: 5px;
-        align-items: center;
-        justify-content: center;
-        
-    }
+.headline {
+    gap: 5px;
+    align-items: center;
+    justify-content: center;
+}
 
-    .icon {
-        margin-bottom: 20px;
-        height: 40px;
-        margin-top: 20px;
-    }
+.icon {
+    margin-bottom: 20px;
+    height: 40px;
+    margin-top: 20px;
+}
 
-    .card {
-        width: 100%;
-        max-width: 90px; /* Smaller cards on smaller screens */
-    }
+.card {
+    width: 100%;
+    max-width: 90px;
+}
 
-    #info {
-        flex-direction: column;
-        gap: 10px;
-    }
+#info {
+    flex-direction: column;
+    gap: 10px;
+}
 
-    .level-buttons button {
-        margin-top: 10px;
-    }
-
+.level-buttons button {
+    margin-top: 10px;
+}
 
 @media (max-width: 400px) {
     .board {
-        grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); /* Even smaller cards for very small screens */
+        grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
     }
-
-    /* .headline {
-        gap: 5px;
-        align-items: center;
-        justify-content: center;
-        
-    }
- */
-
-    
 
     .card {
         height: 70px;
