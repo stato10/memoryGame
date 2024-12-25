@@ -8,48 +8,45 @@
 </head>
 <body>
     <div class="container d-flex align-items-center justify-content-center">
-
-        <div class="headline">
-            
+        
+        <!-- Header Section -->
+        <header class="headline">
             <div class="divIcon">
-                <img class="icon" height="50px" src="/assets/memory-game.png" alt="" srcset="">
+                <img class="icon" height="50px" src="assets/memory-game.png" alt="Memory Game Icon">
             </div>
-
             <h1>Memory Game</h1>
-            
-        </div>
-        
-        <div class="rank"></div>
+        </header>
 
-        
+        <!-- Rank Board -->
+        <section class="rank" style="display: none;"></section>
 
-        <div id="game-board" class="board d-flex">
-            
-        </div>
+        <!-- Game Board -->
+        <main id="game-board" class="board d-flex"></main>
 
-        <div id="info">
-            <div id="timer"> Time: 0s</div>
+        <!-- Game Info Section -->
+        <section id="info" class="info-container">
+            <div id="timer">Time: 0s</div>
             <div id="lives">
-                <img height="50px" src="assets/heart.png" alt="Heart" srcset="">
-                <img height="50px" src="assets/heart.png" alt="Heart" srcset="">
-                <img height="50px" src="assets/heart.png" alt="Heart" srcset="">   
-                <img height="50px" src="assets/heart.png" alt="Heart" srcset="">  
+                <img height="50px" src="assets/heart.png" alt="Heart">
+                <img height="50px" src="assets/heart.png" alt="Heart">
+                <img height="50px" src="assets/heart.png" alt="Heart">
+                <img height="50px" src="assets/heart.png" alt="Heart">
             </div>
-        </div>
+        </section>
 
-        <div class="level-buttons">
-            <button id="restart-btn">Restart</button>
-            <button id="restart-hard-btn" class="level-btn">Hard</button>
-            <button id="restart-easy-btn" class="level-btn">Easy</button>
-        </div>
+        <!-- Level Buttons Section -->
+        <section class="level-buttons">
+            <button id="restart-btn" class="btn">Restart</button>
+            <button id="restart-hard-btn" class="btn level-btn">Hard</button>
+            <button id="restart-easy-btn" class="btn level-btn">Easy</button>
+        </section>
 
-
-        <div class="blur-background" id="blur-background">
+        <!-- Blur Background and Message -->
+        <div class="blur-background" id="blur-background" style="display: none;">
             <div class="message-container" id="message-container"></div>
         </div>
-
-
     </div>
+
     <script defer src="app.js"></script>
 </body>
 </html>
