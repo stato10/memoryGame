@@ -34,7 +34,7 @@ function rankBoard() {
         const btnRemove = document.createElement('button');
         btnRemove.id = 'remove';
         btnRemove.textContent = 'Remove';
-        btnRemove.addEventListener('click', function() {
+        btnRemove.addEventListener('click', function () {
             localStorage.removeItem(obj.name);
             rankBoard(); // Refresh the list after removal
         });
@@ -135,18 +135,20 @@ document.addEventListener('DOMContentLoaded', () => {
             livesDisplay.appendChild(heartImage);
         }
         if (lives === 0) {
+            stopTimer();
             showMessage('Game Over! You ran out of lives.', 'game-over.gif');
+            setTimeout(resetGame, 3000);
         }
     }
 
     function flipCard() {
-        if (flippedCards.length < 2 && !this.classList.contains('flipped')) {
+        if (flippedCards.length < 2 && !this.classList.contains('flipped') && !this.classList.contains('matched')) {
             this.classList.add('flipped');
             flippedCards.push(this);
 
             if (flippedCards.length === 2) {
                 moves++;
-                checkMatch();
+                setTimeout(checkMatch, 500);
             }
         }
     }
@@ -155,8 +157,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const [card1, card2] = flippedCards;
 
         if (card1.dataset.value === card2.dataset.value) {
+            card1.classList.add('matched');
+            card2.classList.add('matched');
             matchedCards.push(card1, card2);
+
             if (matchedCards.length === cardValues.length) {
+                stopTimer();
                 showMessage(`Congratulations! You matched all the cards in ${moves} moves and ${seconds} seconds.`, 'big-win.gif');
                 requestPlayerNameAndSaveRank();
             }
@@ -173,6 +179,15 @@ document.addEventListener('DOMContentLoaded', () => {
         flippedCards = [];
     }
 
+    function showMessage(message, gifSrc) {
+        messageContainer.innerHTML = `${message} <img height="60px" src="assets/${gifSrc}" alt="Game Result">`;
+        blurBackground.style.display = 'flex';
+
+        setTimeout(() => {
+            blurBackground.style.display = 'none';
+        }, 3000);
+    }
+
     function requestPlayerNameAndSaveRank() {
         let name = prompt("What is your name, champion?");
         if (name) {
@@ -184,6 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function resetGame() {
         matchedCards = [];
+        flippedCards = [];
         moves = 0;
         lives = 4;
         seconds = 0;
