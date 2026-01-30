@@ -6,7 +6,7 @@ function Rank(name, time, lives, mode) {
     this.mode = mode;
 }
 
- function rankBoard() {
+function rankBoard() {
     const rankList = document.querySelector('.rank');
     rankList.innerHTML = '<h2> <img height="40px" src="assets/rank.gif" alt="Rank Image"> Rank List </h2>';
 
@@ -14,8 +14,15 @@ function Rank(name, time, lives, mode) {
     for (let i = 0; i < localStorage.length; i++) {
         let key = localStorage.key(i);
         let item = localStorage.getItem(key);
-        let obj = JSON.parse(item);
-        ranks.push(obj);
+        try {
+            let obj = JSON.parse(item);
+            // Basic validation to ensure it's a game rank object
+            if (obj && obj.name && obj.time && obj.lives && obj.mode) {
+                ranks.push(obj);
+            }
+        } catch (e) {
+            console.warn(`Skipping invalid localStorage item: ${key}`, e);
+        }
     }
 
     // Sort ranks by time in ascending order
@@ -28,7 +35,7 @@ function Rank(name, time, lives, mode) {
         const btnRemove = document.createElement('button');
         btnRemove.id = 'remove'
         btnRemove.textContent = 'Remove';
-        btnRemove.addEventListener('click', function() {
+        btnRemove.addEventListener('click', function () {
             localStorage.removeItem(obj.name);
             rankBoard(); // Refresh the list after removal
         });
@@ -47,7 +54,7 @@ function Rank(name, time, lives, mode) {
     rankList.appendChild(closeRankBtn);
 
 
-    
+
 }
 
 
@@ -72,6 +79,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let lives = 4;
     let timer;
     let seconds = 0;
+    let mode = 'easy'; // Default mode
+    let cardValues = ['circle', 'circle', 'square', 'square', 'star', 'star', 'triangle', 'triangle']; // Default cards
 
     function shuffle(array) {
         let m = array.length, t, i;
@@ -84,52 +93,51 @@ document.addEventListener('DOMContentLoaded', () => {
         return array;
     }
 
-function createGameBoard() {
-    const rankList = document.querySelector('.rank');
-
-    // Check if the rank board is visible
-    if (rankList.style.display === 'flex') {
-        // Delay the game start until the rank board is closed
-        rankList.addEventListener('transitionend', function setupGame() {
-            shuffle(cardValues);
-            cardValues.forEach(value => {
-                const card = createCard(value);
-                gameBoard.appendChild(card);
-            });
-            rankList.removeEventListener('transitionend', setupGame); // Remove the event listener once executed
-        });
-
-    } 
-    else {
-        // If the rank board is not visible, start the game immediately
+    function createGameBoard() {
+        // Start the game immediately
         shuffle(cardValues);
         cardValues.forEach(value => {
             const card = createCard(value);
             gameBoard.appendChild(card);
         });
-        startTimer(); 
+        startTimer();
     }
-}
 
 
-function createCard(value) {
-    const card = document.createElement('div');
-    card.classList.add('card');
-    card.dataset.value = value;
+    function createCard(value) {
+        const card = document.createElement('div');
+        card.classList.add('card');
+        card.dataset.value = value;
 
-    const cardImage = document.createElement('img');
-    cardImage.src = `assets/${value}.gif`;
-    cardImage.alt = "Memory Game Card";
-    
-    const cardCover = document.createElement('div');
-    cardCover.classList.add('card-cover');
+        const cardInner = document.createElement('div');
+        cardInner.classList.add('card-inner');
 
-    card.appendChild(cardImage);
-    card.appendChild(cardCover);
-    card.addEventListener('click', flipCard);
+        // Front of the card (the cover, initially visible)
+        // Wait, for 3D CSS flip:
+        // Container (card) -> Inner (preserves 3d) -> Front (default visible) & Back (flipped visible)
+        // The "Front" face in CSS is typically the COVER. The "Back" face is the IMAGE.
 
-    return card;
-}
+        const cardFront = document.createElement('div');
+        cardFront.classList.add('card-front');
+        // Optional: Add a pattern or logo to the back cover if you want
+
+        const cardBack = document.createElement('div');
+        cardBack.classList.add('card-back');
+
+        const cardImage = document.createElement('img');
+        cardImage.src = `assets/${value}.gif`;
+        cardImage.alt = "Memory Game Card";
+
+        cardBack.appendChild(cardImage);
+
+        cardInner.appendChild(cardFront);
+        cardInner.appendChild(cardBack);
+        card.appendChild(cardInner);
+
+        card.addEventListener('click', flipCard);
+
+        return card;
+    }
 
     function startTimer() {
         timer = setInterval(() => {
@@ -147,19 +155,39 @@ function createCard(value) {
     function showMessage(message, gifSrc) {
         messageContainer.innerHTML = `${message}  <img height = 60px src="assets/${gifSrc}" alt="Win GIF">`;
         blurBackground.style.display = 'flex';
+        const nameModal = document.getElementById('name-modal');
+        if (nameModal) nameModal.style.display = 'none'; // Ensure modal is hidden
+        messageContainer.style.display = 'flex'; // Ensure message is visible
         blurBackground.style.fontSize = '25px';
 
 
         setTimeout(() => {
             blurBackground.style.display = 'none';
             stopTimer();
-            resetGame();
+            // If it's a win, we don't reset immediately, we wait for name input if it matches all cards
+            // Wait, existing logic resetGame() here. But checkMatch calls requestPlayerNameAndSaveRank
 
-        }, 3500); 
+            // Correction: showMessage is called for Game Over AND Win in the original code.
+            // If it's a WIN, checkMatch calls requestPlayerNameAndSaveRank immediately after showMessage?
+            // Actually, in original checkMatch:
+            // showMessage(...); requestPlayerNameAndSaveRank();
+
+            // The Original showMessage had a timeout of 3500ms to resetGame.
+            // If we want to show the Name Modal, we shouldn't resetGame or hide background if it's a win.
+
+            // Let's modify logic: Only reset if it's NOT a win (i.e. Game Over). 
+            // OR let the showMessage timeout run, but if the Name Modal is active, don't hide blurBackground?
+
+            if (message.includes('Game Over')) {
+                resetGame();
+            }
+            // For win, do nothing here, let the modal handle it
+
+        }, 3500);
     }
 
     function updateLives() {
-        livesDisplay.innerHTML = ''; 
+        livesDisplay.innerHTML = '';
         for (let i = 0; i < lives; i++) {
             const heartImage = document.createElement('img');
             heartImage.src = 'assets/heart.png';
@@ -172,6 +200,7 @@ function createCard(value) {
     }
 
     function flipCard() {
+        // 'this' refers to the .card element
         if (flippedCards.length < 2 && !this.classList.contains('flipped')) {
             this.classList.add('flipped');
             flippedCards.push(this);
@@ -183,54 +212,73 @@ function createCard(value) {
         }
     }
 
- 
-function checkMatch() {
-    const [card1, card2] = flippedCards;
 
-    if (card1.dataset.value === card2.dataset.value) {
-        matchedCards.push(card1, card2);
-        if (matchedCards.length === cardValues.length) {
-            showMessage(`Congratulations! You matched all the cards in ${moves} moves and ${seconds} seconds.`, 'big-win.gif');
-            requestPlayerNameAndSaveRank();
+    function checkMatch() {
+        const [card1, card2] = flippedCards;
+
+        if (card1.dataset.value === card2.dataset.value) {
+            matchedCards.push(card1, card2);
+            if (matchedCards.length === cardValues.length) {
+                showMessage(`Congratulations! You matched all the cards in ${moves} moves and ${seconds} seconds.`, 'big-win.gif');
+                requestPlayerNameAndSaveRank();
+            }
+        } else {
+            setTimeout(() => {
+                card1.classList.remove('flipped');
+                card2.classList.remove('flipped');
+            }, 1000);
+
+            lives--;
+            updateLives();
         }
-    } else {
-        setTimeout(() => {
-            card1.classList.remove('flipped');
-            card2.classList.remove('flipped');
-        }, 1000);
 
-        lives--;
-        updateLives();
+        flippedCards = [];
     }
 
-    flippedCards = [];
-}
+    function requestPlayerNameAndSaveRank() {
+        // Show modal instead of prompt
+        blurBackground.style.display = 'flex';
+        messageContainer.style.display = 'none'; // Hide win message if it's there
+        const nameModal = document.getElementById('name-modal');
+        nameModal.style.display = 'flex';
 
-function requestPlayerNameAndSaveRank() {
-    let name = prompt("What is your name, champion?");
-    if (name) { 
+        const input = document.getElementById('player-name-input');
+        const saveBtn = document.getElementById('save-name-btn');
 
-        let rank = new Rank(name, seconds, lives, mode);
-        localStorage.setItem(rank.name, JSON.stringify(rank));
-      
+        input.value = ''; // Clear previous input
+        input.focus();
+
+        // One-time event listener for saving (to avoid duplicates)
+        saveBtn.onclick = function () {
+            const name = input.value.trim();
+            if (name) {
+                let rank = new Rank(name, seconds, lives, mode);
+                localStorage.setItem(rank.name, JSON.stringify(rank));
+
+                // Close modal
+                nameModal.style.display = 'none';
+                blurBackground.style.display = 'none';
+
+                // Show ranks
+                rankBoard();
+                displayRankBoard();
+            } else {
+                alert("Please enter a name!"); // Fallback validation
+            }
+        };
     }
 
-    rankBoard();
+    function displayRankBoard() {
+        const rankList = document.querySelector('.rank');
 
-    displayRankBoard();
 
-}
-
-function displayRankBoard() {
-    const rankList = document.querySelector('.rank');
-  
-
-    stopTimer(); 
-    rankList.style.display = 'flex'; 
-}
+        stopTimer();
+        rankList.style.display = 'flex';
+    }
 
 
     function resetGame() {
+        document.querySelector('.rank').style.display = 'none';
         gameBoard.innerHTML = '';
         matchedCards = [];
         moves = 0;
@@ -238,7 +286,7 @@ function displayRankBoard() {
         seconds = 0;
         timerDisplay.textContent = 'Time: 0s';
         stopTimer();
-        updateLives(); 
+        updateLives();
         createGameBoard();
     }
 
@@ -248,14 +296,14 @@ function displayRankBoard() {
     });
 
     restartHardBtn.addEventListener('click', () => {
-      
+
         cardValues = ['circle', 'circle', 'square', 'square', 'star', 'star', 'triangle', 'triangle', 'diamond', 'diamond', 'trapezium', 'trapezium'];
         mode = 'hard';
         resetGame();
     });
 
     restartEasyBtn.addEventListener('click', () => {
-      
+
         cardValues = ['circle', 'circle', 'square', 'square', 'star', 'star', 'triangle', 'triangle'];
         mode = 'easy';
         resetGame();
