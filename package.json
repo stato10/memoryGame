@@ -1,0 +1,23 @@
+{
+  "name": "memory-game",
+  "version": "1.0.0",
+  "description": "A modern, glassmorphism-styled Memory Game with 3D animations and local score tracking.",
+  "main": "app.js",
+  "scripts": {
+    "start": "npx serve .",
+    "dev": "npx serve ."
+  },
+  "keywords": [
+    "memory",
+    "game",
+    "javascript",
+    "glassmorphism",
+    "css",
+    "3d"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "serve": "^14.2.0"
+  }
+}
